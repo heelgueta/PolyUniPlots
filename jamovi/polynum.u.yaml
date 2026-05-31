@@ -1,0 +1,107 @@
+---
+title: Multiple Numeric Plots
+name: PolyNum
+jus: '3.0'
+stage: 0
+compilerMode: aggressive
+
+children:
+  - type: VariableSupplier
+    name: variableSupplier
+    persistSelectionWhenFiltered: true
+    children:
+      - type: TargetLayoutBox
+        label: Variables (numeric)
+        children:
+          - type: VariablesListBox
+            name: vars
+            isTarget: true
+            maxItemCount: 30
+
+  - type: CollapseBox
+    label: Geom Layers
+    collapsed: false
+    children:
+      - type: LayoutBox
+        margin: large
+        children:
+          - type: CheckBox
+            name: showViolin
+          - type: CheckBox
+            name: showBox
+          - type: CheckBox
+            name: showJitter
+          - type: CheckBox
+            name: showMean
+          - type: CheckBox
+            name: showRug
+          - type: CheckBox
+            name: showOutliers
+
+  - type: CollapseBox
+    label: Appearance
+    collapsed: false
+    children:
+      - type: LayoutBox
+        margin: large
+        children:
+          - type: ComboBox
+            name: orientation
+          - type: ComboBox
+            name: colorScheme
+          - type: ComboBox
+            name: themeChoice
+          - type: TextBox
+            name: plotAlpha
+            suffix: '%'
+            inputPattern: '[0-9]+'
+          - type: CheckBox
+            name: showGridX
+          - type: CheckBox
+            name: showGridY
+
+  - type: CollapseBox
+    label: Geom Sizes
+    collapsed: true
+    children:
+      - type: LayoutBox
+        margin: large
+        children:
+          - type: TextBox
+            name: boxWidth
+            suffix: '%'
+            inputPattern: '[0-9]+'
+          - type: TextBox
+            name: jitterWidth
+            suffix: '%'
+            inputPattern: '[0-9]+'
+          - type: TextBox
+            name: pointSize
+            inputPattern: '[0-9.]+'
+          - type: ComboBox
+            name: violinScale
+
+  - type: CollapseBox
+    label: Labels & Size
+    collapsed: true
+    children:
+      - type: LayoutBox
+        margin: large
+        children:
+          - type: TextBox
+            name: title
+            format: string
+          - type: TextBox
+            name: xlab
+            format: string
+          - type: TextBox
+            name: ylab
+            format: string
+          - type: TextBox
+            name: plotWidth
+            suffix: 'px'
+            inputPattern: '[0-9]+'
+          - type: TextBox
+            name: plotHeight
+            suffix: 'px'
+            inputPattern: '[0-9]+'

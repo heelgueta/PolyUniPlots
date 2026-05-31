@@ -1,0 +1,21 @@
+Package: PolyUniPlots
+Type: Package
+Title: Multiple Univariate Plots
+Version: 0.1.0
+Date: 2026-05-30
+Authors@R: person("Herman", "Elgueta", role = c("aut", "cre"),
+    email = "herman@example.com")
+Description: A jamovi module for plotting multiple univariate distributions
+    simultaneously. Supports numerical variables (box, violin, jitter, density,
+    rug) and ordinal/nominal variables (horizontal stacked proportional bars
+    with optional diverging layout).
+License: GPL (>= 2)
+Encoding: UTF-8
+LazyData: true
+Imports:
+    jmvcore (>= 0.8.6),
+    R6,
+    ggplot2 (>= 3.3.0),
+    scales (>= 1.1.0)
+Remotes:
+    jamovi-org/jmvcore
