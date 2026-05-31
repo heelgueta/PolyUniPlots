@@ -6,15 +6,12 @@ polyOrdClass <- R6::R6Class(
         .run = function() {
             vars <- self$options$vars
             if (length(vars) == 0) return()
-
             data <- self$data[, vars, drop = FALSE]
             for (v in vars)
                 if (!is.factor(data[[v]])) data[[v]] <- as.factor(data[[v]])
-
             complete <- apply(data, 1, function(x) !all(is.na(x)))
             data <- data[complete, , drop = FALSE]
             if (nrow(data) == 0) return()
-
             image <- self$results$plot
             image$setSize(self$options$plotWidth, self$options$plotHeight)
             image$setState(list(data = data, vars = vars))
@@ -30,7 +27,6 @@ polyOrdClass <- R6::R6Class(
 
             all_levels <- unique(unlist(lapply(vars, function(v) levels(data[[v]]))))
 
-            # Build proportion table
             prop_list <- lapply(vars, function(v) {
                 x   <- data[[v]][!is.na(data[[v]])]
                 n   <- length(x)
@@ -45,7 +41,6 @@ polyOrdClass <- R6::R6Class(
             long <- do.call(rbind, prop_list)
             long$category <- factor(long$category, levels = all_levels)
 
-            # Sorting
             var_order <- switch(opts$sortVars,
                 name = sort(vars),
                 freq_first = {
@@ -63,7 +58,7 @@ polyOrdClass <- R6::R6Class(
             long$variable <- factor(long$variable, levels = var_order)
 
             n_cats <- length(all_levels)
-            pal    <- private$.palette(opts$colorScheme, n_cats, opts$diverging)
+            pal    <- private$.palette(opts$colorScheme, n_cats)
             names(pal) <- all_levels
 
             if (opts$diverging && n_cats >= 3) {
@@ -78,6 +73,7 @@ polyOrdClass <- R6::R6Class(
 
         .stacked_plot = function(long, var_order, all_levels, pal, opts) {
             bar_h <- opts$barHeight / 100
+            leg_lbl <- if (nchar(trimws(opts$legendTitle)) > 0) opts$legendTitle else NULL
 
             p <- ggplot2::ggplot(long, ggplot2::aes(
                     x = pct, y = variable, fill = category)) +
@@ -100,16 +96,16 @@ polyOrdClass <- R6::R6Class(
                     limits = c(0, 100), breaks = seq(0, 100, 25),
                     labels = function(x) paste0(x, "%"), expand = c(0, 0)) +
                 ggplot2::scale_fill_manual(
-                    values = pal, name = NULL,
+                    values = pal, name = leg_lbl,
                     guide  = ggplot2::guide_legend(nrow = 1))
 
             if (opts$showN) {
                 nd <- unique(long[, c("variable","n_total")])
                 p <- p +
                     ggplot2::geom_text(
-                        data = nd,
+                        data = nd, inherit.aes = FALSE,
                         ggplot2::aes(x = 103, y = variable,
-                                     label = paste0("n=", n_total), fill = NULL),
+                                     label = paste0("n=", n_total)),
                         hjust = 0, size = 3, colour = "grey40") +
                     ggplot2::coord_cartesian(clip = "off") +
                     ggplot2::theme(plot.margin = ggplot2::margin(8, 55, 8, 10))
@@ -126,15 +122,16 @@ polyOrdClass <- R6::R6Class(
             neu_lvl <- if (has_mid) all_levels[mid_idx] else character(0)
             pos_lvl <- all_levels[(mid_idx + as.integer(has_mid)):n_cats]
             bar_h   <- opts$barHeight / 100
+            leg_lbl <- if (nchar(trimws(opts$legendTitle)) > 0) opts$legendTitle else NULL
 
             stack_side <- function(sub, lvls, sign) {
                 cum <- 0
                 rows <- lapply(lvls, function(cat) {
-                    pv  <- sub$pct[sub$category == cat]
+                    pv <- sub$pct[sub$category == cat]
                     if (length(pv) == 0) pv <- 0
-                    r <- data.frame(variable=sub$variable[1], category=cat,
-                                    xmin=cum*sign, xmax=(cum+pv)*sign, pct=pv,
-                                    stringsAsFactors=FALSE)
+                    r  <- data.frame(variable=sub$variable[1], category=cat,
+                                     xmin=cum*sign, xmax=(cum+pv)*sign, pct=pv,
+                                     stringsAsFactors=FALSE)
                     cum <<- cum + pv
                     r
                 })
@@ -142,19 +139,18 @@ polyOrdClass <- R6::R6Class(
             }
 
             div_df <- do.call(rbind, lapply(var_order, function(v) {
-                sub <- long[long$variable == v, ]
+                sub   <- long[long$variable == v, ]
                 n_tot <- sub$n_total[1]
-
-                neg <- stack_side(sub, neg_lvl, -1)
-                pos <- stack_side(sub, pos_lvl,  1)
-                neu <- if (length(neu_lvl) > 0) {
+                neg   <- stack_side(sub, neg_lvl, -1)
+                pos   <- stack_side(sub, pos_lvl,  1)
+                # neutral: split evenly 50/50 around zero
+                neu   <- if (length(neu_lvl) > 0) {
                     pv <- sub$pct[sub$category == neu_lvl]
                     if (length(pv) == 0) pv <- 0
                     data.frame(variable=v, category=neu_lvl,
                                xmin=-pv/2, xmax=pv/2, pct=pv,
                                stringsAsFactors=FALSE)
                 } else NULL
-
                 full <- rbind(neg, neu, pos)
                 full$n_total <- n_tot
                 full
@@ -176,26 +172,27 @@ polyOrdClass <- R6::R6Class(
                 ggplot2::scale_x_continuous(
                     labels=function(x) paste0(abs(x),"%"),
                     limits=c(-100,100), breaks=seq(-100,100,25)) +
-                ggplot2::scale_fill_manual(values=pal, name=NULL,
+                ggplot2::scale_fill_manual(values=pal, name=leg_lbl,
                     guide=ggplot2::guide_legend(nrow=1))
 
             if (opts$showPct) {
-                ld <- div_df[div_df$pct >= opts$minPctLabel, ]
+                ld       <- div_df[div_df$pct >= opts$minPctLabel, ]
                 ld$xmid  <- (ld$xmin + ld$xmax) / 2
                 ld$label <- paste0(round(ld$pct,1),"%")
                 p <- p + ggplot2::geom_text(
-                    data=ld,
-                    ggplot2::aes(x=xmid, y=as.numeric(variable), label=label, fill=NULL),
+                    data=ld, inherit.aes=FALSE,
+                    ggplot2::aes(x=xmid, y=as.numeric(variable), label=label),
                     size=3, colour="white", fontface="bold")
             }
 
             if (opts$showN) {
                 nd <- unique(div_df[, c("variable","n_total")])
+                nd$var_num <- as.numeric(nd$variable)
                 p <- p +
                     ggplot2::geom_text(
-                        data=nd,
-                        ggplot2::aes(x=103, y=as.numeric(variable),
-                                     label=paste0("n=",n_total), fill=NULL),
+                        data=nd, inherit.aes=FALSE,
+                        ggplot2::aes(x=103, y=var_num,
+                                     label=paste0("n=",n_total)),
                         hjust=0, size=3, colour="grey40") +
                     ggplot2::coord_cartesian(clip="off") +
                     ggplot2::theme(plot.margin=ggplot2::margin(8,55,8,10))
@@ -220,7 +217,6 @@ polyOrdClass <- R6::R6Class(
             p + base_t +
                 ggplot2::theme(
                     legend.position    = leg_pos,
-                    legend.title       = ggplot2::element_blank(),
                     legend.text        = ggplot2::element_text(size=9),
                     legend.key.size    = ggplot2::unit(0.5,"cm"),
                     plot.title         = ggplot2::element_text(size=13, face="bold", hjust=0.5),
@@ -234,19 +230,23 @@ polyOrdClass <- R6::R6Class(
                 ggplot2::labs(title=title_text)
         },
 
-        .palette = function(scheme, n, diverging=FALSE) {
+        .palette = function(scheme, n) {
             n <- max(n, 1L)
             hcl_map <- list(
-                tableau  = "Tableau 10", rdbulite = "Blue-Red 3",
-                rdylgn   = "Red-Green",  piyg     = "PiYG",
-                prgn     = "PRGn",       pastel   = "Pastel 1",
-                dark2    = "Dark 2",     set2     = "Set 2",
-                viridis  = "viridis",    plasma   = "plasma")
+                rdbulite = "Blue-Red 3",
+                rdylgn   = "Red-Green",
+                piyg     = "PiYG",
+                prgn     = "PRGn",
+                pastel   = "Pastel 1",
+                dark2    = "Dark 2",
+                set2     = "Set 2",
+                viridis  = "viridis",
+                plasma   = "plasma")
             nm <- hcl_map[[scheme]]
-            if (is.null(nm)) nm <- "Tableau 10"
+            if (is.null(nm)) nm <- "Set 2"
             tryCatch(
                 grDevices::hcl.colors(n, palette=nm),
-                error=function(e) grDevices::hcl.colors(n, palette="Tableau 10"))
+                error=function(e) grDevices::hcl.colors(n, palette="Set 2"))
         }
     )
 )

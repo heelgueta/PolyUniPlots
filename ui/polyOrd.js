@@ -11,8 +11,9 @@ const options = [
     {"name":"showPct","title":"Show percentage labels","type":"Bool","default":true},
     {"name":"minPctLabel","title":"Min % to label","type":"Integer","default":5},
     {"name":"showN","title":"Show N per variable","type":"Bool","default":false},
-    {"name":"colorScheme","title":"Color palette","type":"List","options":[{"name":"tableau","title":"Tableau 10"},{"name":"rdbulite","title":"Red–Blue (diverging)"},{"name":"rdylgn","title":"Red–Yellow–Green"},{"name":"piyg","title":"Pink–Green"},{"name":"prgn","title":"Purple–Green"},{"name":"pastel","title":"Pastel 1"},{"name":"dark2","title":"Dark 2"},{"name":"set2","title":"Set 2"},{"name":"viridis","title":"Viridis"},{"name":"plasma","title":"Plasma"}],"default":"tableau"},
+    {"name":"colorScheme","title":"Color palette","type":"List","options":[{"name":"rdbulite","title":"Red–Blue (diverging)"},{"name":"rdylgn","title":"Red–Yellow–Green"},{"name":"piyg","title":"Pink–Green"},{"name":"prgn","title":"Purple–Green"},{"name":"pastel","title":"Pastel 1"},{"name":"dark2","title":"Dark 2"},{"name":"set2","title":"Set 2"},{"name":"viridis","title":"Viridis"},{"name":"plasma","title":"Plasma"}],"default":"set2"},
     {"name":"legendPos","title":"Legend position","type":"List","options":[{"name":"bottom","title":"Bottom"},{"name":"right","title":"Right"},{"name":"top","title":"Top"},{"name":"none","title":"None"}],"default":"bottom"},
+    {"name":"legendTitle","title":"Legend title","type":"String","default":""},
     {"name":"themeChoice","title":"Theme","type":"List","options":[{"name":"minimal","title":"Minimal"},{"name":"classic","title":"Classic"},{"name":"bw","title":"Black & White"},{"name":"light","title":"Light"}],"default":"minimal"},
     {"name":"barHeight","title":"Bar height (%)","type":"Integer","default":70},
     {"name":"title","title":"Plot title","type":"String","default":""},
@@ -81,6 +82,7 @@ view.layout = ui.extend({
             controls: [
                 { type: DefaultControls.ComboBox, typeName: 'ComboBox', name: "colorScheme" },
                 { type: DefaultControls.ComboBox, typeName: 'ComboBox', name: "legendPos" },
+                { type: DefaultControls.TextBox,  typeName: 'TextBox',  name: "legendTitle", label: "Legend title", format: FormatDef.string },
                 { type: DefaultControls.ComboBox, typeName: 'ComboBox', name: "themeChoice" },
                 { type: DefaultControls.TextBox,  typeName: 'TextBox',  name: "barHeight", label: "Bar height (%)", format: FormatDef.number }
             ]

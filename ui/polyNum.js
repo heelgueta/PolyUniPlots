@@ -5,18 +5,19 @@
 const options = [
     {"name":"data","type":"Data"},
     {"name":"vars","title":"Variables","type":"Variables","suggested":["continuous"],"permitted":["numeric"]},
+    {"name":"plotType","title":"Plot type","type":"List","options":[{"name":"box","title":"Box plot"},{"name":"violin","title":"Violin"},{"name":"strip","title":"Strip"},{"name":"histogram","title":"Histogram"},{"name":"ridge","title":"Ridge"}],"default":"box"},
     {"name":"orientation","title":"Orientation","type":"List","options":[{"name":"vertical","title":"Vertical"},{"name":"horizontal","title":"Horizontal"}],"default":"vertical"},
-    {"name":"showViolin","title":"Violin","type":"Bool","default":false},
-    {"name":"showBox","title":"Box plot","type":"Bool","default":true},
-    {"name":"showJitter","title":"Jitter points","type":"Bool","default":false},
-    {"name":"showMean","title":"Mean diamond","type":"Bool","default":false},
+    {"name":"showJitter","title":"Overlay jitter","type":"Bool","default":false},
+    {"name":"showMean","title":"Show mean","type":"Bool","default":false},
+    {"name":"showMeanCI","title":"With confidence interval","type":"Bool","default":false},
+    {"name":"ciWidth","title":"CI width (%)","type":"Integer","default":95},
     {"name":"showRug","title":"Rug","type":"Bool","default":false},
     {"name":"showOutliers","title":"Show outliers","type":"Bool","default":true},
     {"name":"violinScale","title":"Violin scale","type":"List","options":[{"name":"area","title":"Area"},{"name":"count","title":"Count"},{"name":"width","title":"Width"}],"default":"area"},
     {"name":"plotAlpha","title":"Transparency (%)","type":"Integer","default":80},
-    {"name":"boxWidth","title":"Box width (%)","type":"Integer","default":55},
+    {"name":"boxWidth","title":"Box/strip width (%)","type":"Integer","default":55},
     {"name":"jitterWidth","title":"Jitter spread (%)","type":"Integer","default":20},
-    {"name":"colorScheme","title":"Color palette","type":"List","options":[{"name":"viridis","title":"Viridis"},{"name":"plasma","title":"Plasma"},{"name":"mako","title":"Mako"},{"name":"rocket","title":"Rocket"},{"name":"turbo","title":"Turbo"},{"name":"tableau","title":"Tableau 10"},{"name":"dark","title":"Dark 2"},{"name":"pastel","title":"Pastel 1"},{"name":"warm","title":"Warm"},{"name":"cold","title":"Cold"}],"default":"viridis"},
+    {"name":"colorScheme","title":"Color palette","type":"List","options":[{"name":"viridis","title":"Viridis"},{"name":"plasma","title":"Plasma"},{"name":"mako","title":"Mako"},{"name":"rocket","title":"Rocket"},{"name":"turbo","title":"Turbo"},{"name":"dark","title":"Dark 2"},{"name":"pastel","title":"Pastel 1"},{"name":"warm","title":"Warm"},{"name":"cold","title":"Cold"}],"default":"viridis"},
     {"name":"themeChoice","title":"Theme","type":"List","options":[{"name":"minimal","title":"Minimal"},{"name":"classic","title":"Classic"},{"name":"bw","title":"Black & White"},{"name":"light","title":"Light"}],"default":"minimal"},
     {"name":"title","title":"Plot title","type":"String","default":""},
     {"name":"plotWidth","title":"Width (px)","type":"Integer","default":650},
@@ -57,15 +58,37 @@ view.layout = ui.extend({
         {
             type: DefaultControls.CollapseBox,
             typeName: 'CollapseBox',
-            label: "Geom Layers",
+            label: "Plot Type",
             collapsed: false,
             controls: [
-                { type: DefaultControls.CheckBox, typeName: 'CheckBox', name: "showBox" },
-                { type: DefaultControls.CheckBox, typeName: 'CheckBox', name: "showViolin" },
+                { type: DefaultControls.RadioButton, typeName: 'RadioButton', name: "plotType_box",       optionName: "plotType", optionPart: "box" },
+                { type: DefaultControls.RadioButton, typeName: 'RadioButton', name: "plotType_violin",    optionName: "plotType", optionPart: "violin" },
+                { type: DefaultControls.RadioButton, typeName: 'RadioButton', name: "plotType_strip",     optionName: "plotType", optionPart: "strip" },
+                { type: DefaultControls.RadioButton, typeName: 'RadioButton', name: "plotType_histogram", optionName: "plotType", optionPart: "histogram" },
+                { type: DefaultControls.RadioButton, typeName: 'RadioButton', name: "plotType_ridge",     optionName: "plotType", optionPart: "ridge" },
+                { type: DefaultControls.ComboBox, typeName: 'ComboBox', name: "orientation" }
+            ]
+        },
+        {
+            type: DefaultControls.CollapseBox,
+            typeName: 'CollapseBox',
+            label: "Overlays",
+            collapsed: false,
+            controls: [
                 { type: DefaultControls.CheckBox, typeName: 'CheckBox', name: "showJitter" },
-                { type: DefaultControls.CheckBox, typeName: 'CheckBox', name: "showMean" },
                 { type: DefaultControls.CheckBox, typeName: 'CheckBox', name: "showRug" },
-                { type: DefaultControls.CheckBox, typeName: 'CheckBox', name: "showOutliers" }
+                { type: DefaultControls.CheckBox, typeName: 'CheckBox', name: "showOutliers" },
+                {
+                    type: DefaultControls.CheckBox, typeName: 'CheckBox', name: "showMean",
+                    controls: [
+                        {
+                            type: DefaultControls.CheckBox, typeName: 'CheckBox', name: "showMeanCI",
+                            controls: [
+                                { type: DefaultControls.TextBox, typeName: 'TextBox', name: "ciWidth", label: "CI %", format: FormatDef.number }
+                            ]
+                        }
+                    ]
+                }
             ]
         },
         {
@@ -74,13 +97,12 @@ view.layout = ui.extend({
             label: "Appearance",
             collapsed: false,
             controls: [
-                { type: DefaultControls.ComboBox, typeName: 'ComboBox', name: "orientation" },
                 { type: DefaultControls.ComboBox, typeName: 'ComboBox', name: "colorScheme" },
                 { type: DefaultControls.ComboBox, typeName: 'ComboBox', name: "themeChoice" },
-                { type: DefaultControls.TextBox,  typeName: 'TextBox',  name: "plotAlpha", label: "Transparency (%)", format: FormatDef.number },
-                { type: DefaultControls.TextBox,  typeName: 'TextBox',  name: "boxWidth",  label: "Box width (%)",  format: FormatDef.number },
-                { type: DefaultControls.TextBox,  typeName: 'TextBox',  name: "jitterWidth", label: "Jitter spread (%)", format: FormatDef.number },
-                { type: DefaultControls.ComboBox, typeName: 'ComboBox', name: "violinScale" }
+                { type: DefaultControls.ComboBox, typeName: 'ComboBox', name: "violinScale" },
+                { type: DefaultControls.TextBox,  typeName: 'TextBox',  name: "plotAlpha",   label: "Transparency (%)", format: FormatDef.number },
+                { type: DefaultControls.TextBox,  typeName: 'TextBox',  name: "boxWidth",    label: "Box/strip width (%)", format: FormatDef.number },
+                { type: DefaultControls.TextBox,  typeName: 'TextBox',  name: "jitterWidth", label: "Jitter spread (%)",   format: FormatDef.number }
             ]
         },
         {
@@ -89,9 +111,9 @@ view.layout = ui.extend({
             label: "Labels & Size",
             collapsed: true,
             controls: [
-                { type: DefaultControls.TextBox, typeName: 'TextBox', name: "title",      label: "Title",      format: FormatDef.string },
-                { type: DefaultControls.TextBox, typeName: 'TextBox', name: "plotWidth",  label: "Width (px)", format: FormatDef.number },
-                { type: DefaultControls.TextBox, typeName: 'TextBox', name: "plotHeight", label: "Height (px)",format: FormatDef.number }
+                { type: DefaultControls.TextBox, typeName: 'TextBox', name: "title",      label: "Title",       format: FormatDef.string },
+                { type: DefaultControls.TextBox, typeName: 'TextBox', name: "plotWidth",  label: "Width (px)",  format: FormatDef.number },
+                { type: DefaultControls.TextBox, typeName: 'TextBox', name: "plotHeight", label: "Height (px)", format: FormatDef.number }
             ]
         }
     ]

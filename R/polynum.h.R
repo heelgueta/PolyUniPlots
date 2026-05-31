@@ -4,11 +4,12 @@ polyNumOptions <- R6::R6Class(
     public = list(
         initialize = function(
             vars        = NULL,
+            plotType    = "box",
             orientation = "vertical",
-            showViolin  = FALSE,
-            showBox     = TRUE,
             showJitter  = FALSE,
             showMean    = FALSE,
+            showMeanCI  = FALSE,
+            ciWidth     = 95L,
             showRug     = FALSE,
             showOutliers = TRUE,
             violinScale = "area",
@@ -33,29 +34,31 @@ polyNumOptions <- R6::R6Class(
                 suggested = list("continuous"),
                 permitted = list("numeric"))
 
-            private$..orientation  <- jmvcore::OptionList$new("orientation",  orientation,  options=list("vertical","horizontal"), default="vertical")
-            private$..showViolin   <- jmvcore::OptionBool$new("showViolin",   showViolin,   default=FALSE)
-            private$..showBox      <- jmvcore::OptionBool$new("showBox",      showBox,      default=TRUE)
-            private$..showJitter   <- jmvcore::OptionBool$new("showJitter",   showJitter,   default=FALSE)
-            private$..showMean     <- jmvcore::OptionBool$new("showMean",     showMean,     default=FALSE)
-            private$..showRug      <- jmvcore::OptionBool$new("showRug",      showRug,      default=FALSE)
+            private$..plotType    <- jmvcore::OptionList$new("plotType",    plotType,    options=list("box","violin","strip","histogram","ridge"), default="box")
+            private$..orientation <- jmvcore::OptionList$new("orientation", orientation, options=list("vertical","horizontal"), default="vertical")
+            private$..showJitter  <- jmvcore::OptionBool$new("showJitter",  showJitter,  default=FALSE)
+            private$..showMean    <- jmvcore::OptionBool$new("showMean",    showMean,    default=FALSE)
+            private$..showMeanCI  <- jmvcore::OptionBool$new("showMeanCI",  showMeanCI,  default=FALSE)
+            private$..ciWidth     <- jmvcore::OptionInteger$new("ciWidth",   ciWidth,    min=50L, max=99L, default=95L)
+            private$..showRug     <- jmvcore::OptionBool$new("showRug",     showRug,     default=FALSE)
             private$..showOutliers <- jmvcore::OptionBool$new("showOutliers", showOutliers, default=TRUE)
             private$..violinScale  <- jmvcore::OptionList$new("violinScale",  violinScale,  options=list("area","count","width"), default="area")
             private$..plotAlpha    <- jmvcore::OptionInteger$new("plotAlpha",   plotAlpha,   min=0L,   max=100L, default=80L)
             private$..boxWidth     <- jmvcore::OptionInteger$new("boxWidth",    boxWidth,    min=5L,   max=100L, default=55L)
             private$..jitterWidth  <- jmvcore::OptionInteger$new("jitterWidth", jitterWidth, min=0L,   max=50L,  default=20L)
-            private$..colorScheme  <- jmvcore::OptionList$new("colorScheme",  colorScheme,  options=list("viridis","plasma","mako","rocket","turbo","tableau","dark","pastel","warm","cold"), default="viridis")
+            private$..colorScheme  <- jmvcore::OptionList$new("colorScheme",  colorScheme,  options=list("viridis","plasma","mako","rocket","turbo","dark","pastel","warm","cold"), default="viridis")
             private$..themeChoice  <- jmvcore::OptionList$new("themeChoice",  themeChoice,  options=list("minimal","classic","bw","light"), default="minimal")
             private$..title        <- jmvcore::OptionString$new("title",      title,      default="")
             private$..plotWidth    <- jmvcore::OptionInteger$new("plotWidth",  plotWidth,  min=300L, max=2000L, default=650L)
             private$..plotHeight   <- jmvcore::OptionInteger$new("plotHeight", plotHeight, min=200L, max=2000L, default=480L)
 
             self$.addOption(private$..vars)
+            self$.addOption(private$..plotType)
             self$.addOption(private$..orientation)
-            self$.addOption(private$..showViolin)
-            self$.addOption(private$..showBox)
             self$.addOption(private$..showJitter)
             self$.addOption(private$..showMean)
+            self$.addOption(private$..showMeanCI)
+            self$.addOption(private$..ciWidth)
             self$.addOption(private$..showRug)
             self$.addOption(private$..showOutliers)
             self$.addOption(private$..violinScale)
@@ -70,11 +73,12 @@ polyNumOptions <- R6::R6Class(
         }),
     active = list(
         vars        = function() private$..vars$value,
+        plotType    = function() private$..plotType$value,
         orientation = function() private$..orientation$value,
-        showViolin  = function() private$..showViolin$value,
-        showBox     = function() private$..showBox$value,
         showJitter  = function() private$..showJitter$value,
         showMean    = function() private$..showMean$value,
+        showMeanCI  = function() private$..showMeanCI$value,
+        ciWidth     = function() private$..ciWidth$value,
         showRug     = function() private$..showRug$value,
         showOutliers= function() private$..showOutliers$value,
         violinScale = function() private$..violinScale$value,
@@ -87,12 +91,12 @@ polyNumOptions <- R6::R6Class(
         plotWidth   = function() private$..plotWidth$value,
         plotHeight  = function() private$..plotHeight$value),
     private = list(
-        ..vars        = NA, ..orientation  = NA, ..showViolin   = NA,
-        ..showBox     = NA, ..showJitter   = NA, ..showMean     = NA,
-        ..showRug     = NA, ..showOutliers = NA, ..violinScale  = NA,
-        ..plotAlpha   = NA, ..boxWidth     = NA, ..jitterWidth  = NA,
-        ..colorScheme = NA, ..themeChoice  = NA, ..title        = NA,
-        ..plotWidth   = NA, ..plotHeight   = NA))
+        ..vars=NA, ..plotType=NA, ..orientation=NA, ..showJitter=NA,
+        ..showMean=NA, ..showMeanCI=NA, ..ciWidth=NA,
+        ..showRug=NA, ..showOutliers=NA, ..violinScale=NA,
+        ..plotAlpha=NA, ..boxWidth=NA, ..jitterWidth=NA,
+        ..colorScheme=NA, ..themeChoice=NA, ..title=NA,
+        ..plotWidth=NA, ..plotHeight=NA))
 
 polyNumResults <- R6::R6Class(
     "polyNumResults",
@@ -123,7 +127,7 @@ polyNumBase <- R6::R6Class(
             super$initialize(
                 package    = "PolyUniPlots",
                 name       = "polyNum",
-                version    = c(0, 1, 0),
+                version    = c(0, 2, 0),
                 options    = options,
                 results    = polyNumResults$new(options=options),
                 data       = data,

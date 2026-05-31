@@ -10,8 +10,9 @@ polyOrdOptions <- R6::R6Class(
             showPct     = TRUE,
             minPctLabel = 5L,
             showN       = FALSE,
-            colorScheme = "tableau",
+            colorScheme = "set2",
             legendPos   = "bottom",
+            legendTitle = "",
             themeChoice = "minimal",
             barHeight   = 70L,
             title       = "",
@@ -32,8 +33,9 @@ polyOrdOptions <- R6::R6Class(
             private$..showN       <- jmvcore::OptionBool$new("showN",       showN,       default=FALSE)
             private$..sortVars    <- jmvcore::OptionList$new("sortVars",    sortVars,    options=list("none","name","freq_first","freq_last"), default="none")
             private$..minPctLabel <- jmvcore::OptionInteger$new("minPctLabel", minPctLabel, min=0L, max=50L, default=5L)
-            private$..colorScheme <- jmvcore::OptionList$new("colorScheme", colorScheme, options=list("tableau","rdbulite","rdylgn","piyg","prgn","pastel","dark2","set2","viridis","plasma"), default="tableau")
+            private$..colorScheme <- jmvcore::OptionList$new("colorScheme", colorScheme, options=list("rdbulite","rdylgn","piyg","prgn","pastel","dark2","set2","viridis","plasma"), default="set2")
             private$..legendPos   <- jmvcore::OptionList$new("legendPos",   legendPos,   options=list("bottom","right","top","none"), default="bottom")
+            private$..legendTitle <- jmvcore::OptionString$new("legendTitle", legendTitle, default="")
             private$..themeChoice <- jmvcore::OptionList$new("themeChoice", themeChoice, options=list("minimal","classic","bw","light"), default="minimal")
             private$..barHeight   <- jmvcore::OptionInteger$new("barHeight",  barHeight,  min=10L, max=100L, default=70L)
             private$..title       <- jmvcore::OptionString$new("title",      title,      default="")
@@ -49,6 +51,7 @@ polyOrdOptions <- R6::R6Class(
             self$.addOption(private$..showN)
             self$.addOption(private$..colorScheme)
             self$.addOption(private$..legendPos)
+            self$.addOption(private$..legendTitle)
             self$.addOption(private$..themeChoice)
             self$.addOption(private$..barHeight)
             self$.addOption(private$..title)
@@ -65,6 +68,7 @@ polyOrdOptions <- R6::R6Class(
         showN       = function() private$..showN$value,
         colorScheme = function() private$..colorScheme$value,
         legendPos   = function() private$..legendPos$value,
+        legendTitle = function() private$..legendTitle$value,
         themeChoice = function() private$..themeChoice$value,
         barHeight   = function() private$..barHeight$value,
         title       = function() private$..title$value,
@@ -73,7 +77,7 @@ polyOrdOptions <- R6::R6Class(
     private = list(
         ..vars=NA, ..diverging=NA, ..sortVars=NA, ..reverseVars=NA,
         ..showPct=NA, ..minPctLabel=NA, ..showN=NA, ..colorScheme=NA,
-        ..legendPos=NA, ..themeChoice=NA, ..barHeight=NA,
+        ..legendPos=NA, ..legendTitle=NA, ..themeChoice=NA, ..barHeight=NA,
         ..title=NA, ..plotWidth=NA, ..plotHeight=NA))
 
 polyOrdResults <- R6::R6Class(
@@ -100,7 +104,7 @@ polyOrdBase <- R6::R6Class(
     public = list(
         initialize = function(options, data=NULL, datasetId="", analysisId="", revision=0) {
             super$initialize(
-                package="PolyUniPlots", name="polyOrd", version=c(0,1,0),
+                package="PolyUniPlots", name="polyOrd", version=c(0,2,0),
                 options=options, results=polyOrdResults$new(options=options),
                 data=data, datasetId=datasetId, analysisId=analysisId, revision=revision)
         })

@@ -2,7 +2,7 @@
 name: polyNum
 title: Multiple Numeric Plots
 menuGroup: PolyUniPlots
-version: '0.1.0'
+version: '0.2.0'
 jas: '1.2'
 
 options:
@@ -15,6 +15,21 @@ options:
         - continuous
       permitted:
         - numeric
+    - name: plotType
+      title: Plot type
+      type: List
+      options:
+        - name: box
+          title: Box plot
+        - name: violin
+          title: Violin
+        - name: strip
+          title: Strip
+        - name: histogram
+          title: Histogram
+        - name: ridge
+          title: Ridge
+      default: box
     - name: orientation
       title: Orientation
       type: List
@@ -24,22 +39,24 @@ options:
         - name: horizontal
           title: Horizontal
       default: vertical
-    - name: showViolin
-      title: Violin
-      type: Bool
-      default: false
-    - name: showBox
-      title: Box plot
-      type: Bool
-      default: true
     - name: showJitter
-      title: Jitter points
+      title: Overlay jitter
       type: Bool
       default: false
     - name: showMean
-      title: Mean diamond
+      title: Show mean
       type: Bool
       default: false
+    - name: showMeanCI
+      title: With confidence interval
+      type: Bool
+      default: false
+    - name: ciWidth
+      title: CI width (%)
+      type: Integer
+      min: 50
+      max: 99
+      default: 95
     - name: showRug
       title: Rug
       type: Bool
@@ -66,7 +83,7 @@ options:
       max: 100
       default: 80
     - name: boxWidth
-      title: Box width (%)
+      title: Box/strip width (%)
       type: Integer
       min: 5
       max: 100
@@ -91,8 +108,6 @@ options:
           title: Rocket
         - name: turbo
           title: Turbo
-        - name: tableau
-          title: Tableau 10
         - name: dark
           title: Dark 2
         - name: pastel

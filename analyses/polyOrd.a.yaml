@@ -2,7 +2,7 @@
 name: polyOrd
 title: Multiple Ordinal/Nominal Plots
 menuGroup: PolyUniPlots
-version: '0.1.0'
+version: '0.2.0'
 jas: '1.2'
 
 options:
@@ -55,8 +55,6 @@ options:
       title: Color palette
       type: List
       options:
-        - name: tableau
-          title: Tableau 10
         - name: rdbulite
           title: Red–Blue (diverging)
         - name: rdylgn
@@ -75,7 +73,11 @@ options:
           title: Viridis
         - name: plasma
           title: Plasma
-      default: tableau
+      default: set2
+    - name: legendTitle
+      title: Legend title
+      type: String
+      default: ''
     - name: legendPos
       title: Legend position
       type: List
