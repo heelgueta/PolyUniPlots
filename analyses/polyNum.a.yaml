@@ -1,0 +1,135 @@
+---
+name: polyNum
+title: Multiple Numeric Plots
+menuGroup: PolyUniPlots
+version: '0.1.0'
+jas: '1.2'
+
+options:
+    - name: data
+      type: Data
+    - name: vars
+      title: Variables
+      type: Variables
+      suggested:
+        - continuous
+      permitted:
+        - numeric
+    - name: orientation
+      title: Orientation
+      type: List
+      options:
+        - name: vertical
+          title: Vertical
+        - name: horizontal
+          title: Horizontal
+      default: vertical
+    - name: showViolin
+      title: Violin
+      type: Bool
+      default: false
+    - name: showBox
+      title: Box plot
+      type: Bool
+      default: true
+    - name: showJitter
+      title: Jitter points
+      type: Bool
+      default: false
+    - name: showMean
+      title: Mean diamond
+      type: Bool
+      default: false
+    - name: showRug
+      title: Rug
+      type: Bool
+      default: false
+    - name: showOutliers
+      title: Show outliers
+      type: Bool
+      default: true
+    - name: violinScale
+      title: Violin scale
+      type: List
+      options:
+        - name: area
+          title: Area
+        - name: count
+          title: Count
+        - name: width
+          title: Width
+      default: area
+    - name: plotAlpha
+      title: Transparency (%)
+      type: Integer
+      min: 0
+      max: 100
+      default: 80
+    - name: boxWidth
+      title: Box width (%)
+      type: Integer
+      min: 5
+      max: 100
+      default: 55
+    - name: jitterWidth
+      title: Jitter spread (%)
+      type: Integer
+      min: 0
+      max: 50
+      default: 20
+    - name: colorScheme
+      title: Color palette
+      type: List
+      options:
+        - name: viridis
+          title: Viridis
+        - name: plasma
+          title: Plasma
+        - name: mako
+          title: Mako
+        - name: rocket
+          title: Rocket
+        - name: turbo
+          title: Turbo
+        - name: tableau
+          title: Tableau 10
+        - name: dark
+          title: Dark 2
+        - name: pastel
+          title: Pastel 1
+        - name: warm
+          title: Warm
+        - name: cold
+          title: Cold
+      default: viridis
+    - name: themeChoice
+      title: Theme
+      type: List
+      options:
+        - name: minimal
+          title: Minimal
+        - name: classic
+          title: Classic
+        - name: bw
+          title: Black & White
+        - name: light
+          title: Light
+      default: minimal
+    - name: title
+      title: Plot title
+      type: String
+      default: ''
+    - name: plotWidth
+      title: Width (px)
+      type: Integer
+      min: 300
+      max: 2000
+      default: 650
+    - name: plotHeight
+      title: Height (px)
+      type: Integer
+      min: 200
+      max: 2000
+      default: 480
+
+...
