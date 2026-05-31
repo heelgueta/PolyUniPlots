@@ -2,7 +2,7 @@
 name: polyNum
 title: Multiple Numeric Plots
 menuGroup: PolyUniPlots
-version: '0.2.0'
+version: '0.3.0'
 jas: '1.2'
 
 options:
@@ -29,6 +29,10 @@ options:
           title: Histogram
         - name: ridge
           title: Ridge
+        - name: barcode
+          title: Barcode
+        - name: raincloud
+          title: Raincloud
       default: box
     - name: orientation
       title: Orientation
@@ -94,6 +98,18 @@ options:
       min: 0
       max: 50
       default: 20
+    - name: ridgeOverlap
+      title: Ridge overlap (%)
+      type: Integer
+      min: 0
+      max: 200
+      default: 50
+    - name: lineWidth
+      title: Line thickness
+      type: Integer
+      min: 1
+      max: 5
+      default: 2
     - name: colorScheme
       title: Color palette
       type: List

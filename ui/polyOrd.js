@@ -5,6 +5,7 @@
 const options = [
     {"name":"data","type":"Data"},
     {"name":"vars","title":"Variables","type":"Variables","suggested":["ordinal","nominal"],"permitted":["factor"]},
+    {"name":"chartType","title":"Chart type","type":"List","options":[{"name":"bars","title":"Stacked bars"},{"name":"waffle","title":"Waffle chart"},{"name":"pictogram","title":"Pictogram"},{"name":"parliament","title":"Parliament/arc"}],"default":"bars"},
     {"name":"diverging","title":"Diverging layout (Likert-style)","type":"Bool","default":false},
     {"name":"sortVars","title":"Sort variables","type":"List","options":[{"name":"none","title":"As entered"},{"name":"name","title":"Alphabetically"},{"name":"freq_first","title":"By first category"},{"name":"freq_last","title":"By last category"}],"default":"none"},
     {"name":"reverseVars","title":"Reverse variable order","type":"Bool","default":false},
@@ -50,6 +51,18 @@ view.layout = ui.extend({
                         }
                     ]
                 }
+            ]
+        },
+        {
+            type: DefaultControls.CollapseBox,
+            typeName: 'CollapseBox',
+            label: "Chart Type",
+            collapsed: false,
+            controls: [
+                { type: DefaultControls.RadioButton, typeName: 'RadioButton', name: "chartType_bars",       optionName: "chartType", optionPart: "bars" },
+                { type: DefaultControls.RadioButton, typeName: 'RadioButton', name: "chartType_waffle",     optionName: "chartType", optionPart: "waffle" },
+                { type: DefaultControls.RadioButton, typeName: 'RadioButton', name: "chartType_pictogram",  optionName: "chartType", optionPart: "pictogram" },
+                { type: DefaultControls.RadioButton, typeName: 'RadioButton', name: "chartType_parliament", optionName: "chartType", optionPart: "parliament" }
             ]
         },
         {

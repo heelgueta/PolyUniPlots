@@ -5,7 +5,7 @@
 const options = [
     {"name":"data","type":"Data"},
     {"name":"vars","title":"Variables","type":"Variables","suggested":["continuous"],"permitted":["numeric"]},
-    {"name":"plotType","title":"Plot type","type":"List","options":[{"name":"box","title":"Box plot"},{"name":"violin","title":"Violin"},{"name":"strip","title":"Strip"},{"name":"histogram","title":"Histogram"},{"name":"ridge","title":"Ridge"}],"default":"box"},
+    {"name":"plotType","title":"Plot type","type":"List","options":[{"name":"box","title":"Box plot"},{"name":"violin","title":"Violin"},{"name":"strip","title":"Strip"},{"name":"histogram","title":"Histogram"},{"name":"ridge","title":"Ridge"},{"name":"barcode","title":"Barcode"},{"name":"raincloud","title":"Raincloud"}],"default":"box"},
     {"name":"orientation","title":"Orientation","type":"List","options":[{"name":"vertical","title":"Vertical"},{"name":"horizontal","title":"Horizontal"}],"default":"vertical"},
     {"name":"showJitter","title":"Overlay jitter","type":"Bool","default":false},
     {"name":"showMean","title":"Show mean","type":"Bool","default":false},
@@ -17,6 +17,8 @@ const options = [
     {"name":"plotAlpha","title":"Transparency (%)","type":"Integer","default":80},
     {"name":"boxWidth","title":"Box/strip width (%)","type":"Integer","default":55},
     {"name":"jitterWidth","title":"Jitter spread (%)","type":"Integer","default":20},
+    {"name":"ridgeOverlap","title":"Ridge overlap (%)","type":"Integer","default":50},
+    {"name":"lineWidth","title":"Line thickness","type":"Integer","default":2},
     {"name":"colorScheme","title":"Color palette","type":"List","options":[{"name":"viridis","title":"Viridis"},{"name":"plasma","title":"Plasma"},{"name":"mako","title":"Mako"},{"name":"rocket","title":"Rocket"},{"name":"turbo","title":"Turbo"},{"name":"dark","title":"Dark 2"},{"name":"pastel","title":"Pastel 1"},{"name":"warm","title":"Warm"},{"name":"cold","title":"Cold"}],"default":"viridis"},
     {"name":"themeChoice","title":"Theme","type":"List","options":[{"name":"minimal","title":"Minimal"},{"name":"classic","title":"Classic"},{"name":"bw","title":"Black & White"},{"name":"light","title":"Light"}],"default":"minimal"},
     {"name":"title","title":"Plot title","type":"String","default":""},
@@ -66,6 +68,8 @@ view.layout = ui.extend({
                 { type: DefaultControls.RadioButton, typeName: 'RadioButton', name: "plotType_strip",     optionName: "plotType", optionPart: "strip" },
                 { type: DefaultControls.RadioButton, typeName: 'RadioButton', name: "plotType_histogram", optionName: "plotType", optionPart: "histogram" },
                 { type: DefaultControls.RadioButton, typeName: 'RadioButton', name: "plotType_ridge",     optionName: "plotType", optionPart: "ridge" },
+                { type: DefaultControls.RadioButton, typeName: 'RadioButton', name: "plotType_barcode",   optionName: "plotType", optionPart: "barcode" },
+                { type: DefaultControls.RadioButton, typeName: 'RadioButton', name: "plotType_raincloud", optionName: "plotType", optionPart: "raincloud" },
                 { type: DefaultControls.ComboBox, typeName: 'ComboBox', name: "orientation" }
             ]
         },
@@ -100,9 +104,11 @@ view.layout = ui.extend({
                 { type: DefaultControls.ComboBox, typeName: 'ComboBox', name: "colorScheme" },
                 { type: DefaultControls.ComboBox, typeName: 'ComboBox', name: "themeChoice" },
                 { type: DefaultControls.ComboBox, typeName: 'ComboBox', name: "violinScale" },
-                { type: DefaultControls.TextBox,  typeName: 'TextBox',  name: "plotAlpha",   label: "Transparency (%)", format: FormatDef.number },
-                { type: DefaultControls.TextBox,  typeName: 'TextBox',  name: "boxWidth",    label: "Box/strip width (%)", format: FormatDef.number },
-                { type: DefaultControls.TextBox,  typeName: 'TextBox',  name: "jitterWidth", label: "Jitter spread (%)",   format: FormatDef.number }
+                { type: DefaultControls.TextBox,  typeName: 'TextBox',  name: "plotAlpha",     label: "Transparency (%)",    format: FormatDef.number },
+                { type: DefaultControls.TextBox,  typeName: 'TextBox',  name: "boxWidth",      label: "Box/strip width (%)", format: FormatDef.number },
+                { type: DefaultControls.TextBox,  typeName: 'TextBox',  name: "jitterWidth",   label: "Jitter spread (%)",   format: FormatDef.number },
+                { type: DefaultControls.TextBox,  typeName: 'TextBox',  name: "ridgeOverlap",  label: "Ridge overlap (%)",   format: FormatDef.number },
+                { type: DefaultControls.TextBox,  typeName: 'TextBox',  name: "lineWidth",     label: "Line thickness",      format: FormatDef.number }
             ]
         },
         {

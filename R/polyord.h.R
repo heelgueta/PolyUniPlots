@@ -4,6 +4,7 @@ polyOrdOptions <- R6::R6Class(
     public = list(
         initialize = function(
             vars        = NULL,
+            chartType   = "bars",
             diverging   = FALSE,
             sortVars    = "none",
             reverseVars = FALSE,
@@ -26,23 +27,43 @@ polyOrdOptions <- R6::R6Class(
                 requiresData = TRUE,
                 ...)
 
-            private$..vars        <- jmvcore::OptionVariables$new("vars", vars, suggested=list("ordinal","nominal"), permitted=list("factor"))
+            private$..vars        <- jmvcore::OptionVariables$new(
+                "vars", vars,
+                suggested = list("ordinal","nominal"),
+                permitted = list("factor"))
+            private$..chartType   <- jmvcore::OptionList$new(
+                "chartType", chartType,
+                options = list("bars","waffle","pictogram","parliament"),
+                default = "bars")
             private$..diverging   <- jmvcore::OptionBool$new("diverging",   diverging,   default=FALSE)
             private$..reverseVars <- jmvcore::OptionBool$new("reverseVars", reverseVars, default=FALSE)
             private$..showPct     <- jmvcore::OptionBool$new("showPct",     showPct,     default=TRUE)
             private$..showN       <- jmvcore::OptionBool$new("showN",       showN,       default=FALSE)
-            private$..sortVars    <- jmvcore::OptionList$new("sortVars",    sortVars,    options=list("none","name","freq_first","freq_last"), default="none")
+            private$..sortVars    <- jmvcore::OptionList$new(
+                "sortVars", sortVars,
+                options = list("none","name","freq_first","freq_last"),
+                default = "none")
             private$..minPctLabel <- jmvcore::OptionInteger$new("minPctLabel", minPctLabel, min=0L, max=50L, default=5L)
-            private$..colorScheme <- jmvcore::OptionList$new("colorScheme", colorScheme, options=list("rdbulite","rdylgn","piyg","prgn","pastel","dark2","set2","viridis","plasma"), default="set2")
-            private$..legendPos   <- jmvcore::OptionList$new("legendPos",   legendPos,   options=list("bottom","right","top","none"), default="bottom")
+            private$..colorScheme <- jmvcore::OptionList$new(
+                "colorScheme", colorScheme,
+                options = list("rdbulite","rdylgn","piyg","prgn","pastel","dark2","set2","viridis","plasma"),
+                default = "set2")
+            private$..legendPos   <- jmvcore::OptionList$new(
+                "legendPos", legendPos,
+                options = list("bottom","right","top","none"),
+                default = "bottom")
             private$..legendTitle <- jmvcore::OptionString$new("legendTitle", legendTitle, default="")
-            private$..themeChoice <- jmvcore::OptionList$new("themeChoice", themeChoice, options=list("minimal","classic","bw","light"), default="minimal")
+            private$..themeChoice <- jmvcore::OptionList$new(
+                "themeChoice", themeChoice,
+                options = list("minimal","classic","bw","light"),
+                default = "minimal")
             private$..barHeight   <- jmvcore::OptionInteger$new("barHeight",  barHeight,  min=10L, max=100L, default=70L)
-            private$..title       <- jmvcore::OptionString$new("title",      title,      default="")
+            private$..title       <- jmvcore::OptionString$new("title",       title,      default="")
             private$..plotWidth   <- jmvcore::OptionInteger$new("plotWidth",  plotWidth,  min=300L, max=2000L, default=700L)
             private$..plotHeight  <- jmvcore::OptionInteger$new("plotHeight", plotHeight, min=150L, max=2000L, default=400L)
 
             self$.addOption(private$..vars)
+            self$.addOption(private$..chartType)
             self$.addOption(private$..diverging)
             self$.addOption(private$..sortVars)
             self$.addOption(private$..reverseVars)
@@ -60,6 +81,7 @@ polyOrdOptions <- R6::R6Class(
         }),
     active = list(
         vars        = function() private$..vars$value,
+        chartType   = function() private$..chartType$value,
         diverging   = function() private$..diverging$value,
         sortVars    = function() private$..sortVars$value,
         reverseVars = function() private$..reverseVars$value,
@@ -75,7 +97,7 @@ polyOrdOptions <- R6::R6Class(
         plotWidth   = function() private$..plotWidth$value,
         plotHeight  = function() private$..plotHeight$value),
     private = list(
-        ..vars=NA, ..diverging=NA, ..sortVars=NA, ..reverseVars=NA,
+        ..vars=NA, ..chartType=NA, ..diverging=NA, ..sortVars=NA, ..reverseVars=NA,
         ..showPct=NA, ..minPctLabel=NA, ..showN=NA, ..colorScheme=NA,
         ..legendPos=NA, ..legendTitle=NA, ..themeChoice=NA, ..barHeight=NA,
         ..title=NA, ..plotWidth=NA, ..plotHeight=NA))
@@ -90,11 +112,14 @@ polyOrdResults <- R6::R6Class(
         initialize = function(options) {
             super$initialize(options=options, name="", title="Multiple Ordinal/Nominal Plots")
             self$add(jmvcore::Image$new(
-                options=options, name="plot",
-                title="Proportional Response Chart",
-                width=700, height=400,
-                renderFun=".plot", requiresData=TRUE,
-                refs=list("ggplot2")))
+                options      = options,
+                name         = "plot",
+                title        = "Proportional Response Chart",
+                width        = 700,
+                height       = 400,
+                renderFun    = ".plot",
+                requiresData = TRUE,
+                refs         = list("ggplot2")))
         })
 )
 
@@ -104,9 +129,15 @@ polyOrdBase <- R6::R6Class(
     public = list(
         initialize = function(options, data=NULL, datasetId="", analysisId="", revision=0) {
             super$initialize(
-                package="PolyUniPlots", name="polyOrd", version=c(0,2,0),
-                options=options, results=polyOrdResults$new(options=options),
-                data=data, datasetId=datasetId, analysisId=analysisId, revision=revision)
+                package    = "PolyUniPlots",
+                name       = "polyOrd",
+                version    = c(0, 3, 0),
+                options    = options,
+                results    = polyOrdResults$new(options=options),
+                data       = data,
+                datasetId  = datasetId,
+                analysisId = analysisId,
+                revision   = revision)
         })
 )
 

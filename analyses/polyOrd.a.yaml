@@ -2,7 +2,7 @@
 name: polyOrd
 title: Multiple Ordinal/Nominal Plots
 menuGroup: PolyUniPlots
-version: '0.2.0'
+version: '0.3.0'
 jas: '1.2'
 
 options:
@@ -16,6 +16,19 @@ options:
         - nominal
       permitted:
         - factor
+    - name: chartType
+      title: Chart type
+      type: List
+      options:
+        - name: bars
+          title: Stacked bars
+        - name: waffle
+          title: Waffle chart
+        - name: pictogram
+          title: Pictogram
+        - name: parliament
+          title: Parliament/arc
+      default: bars
     - name: diverging
       title: Diverging layout (Likert-style)
       type: Bool
